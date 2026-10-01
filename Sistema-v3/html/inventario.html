@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+    <link rel="icon" href="../img/tecnica.jpg">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body data-pagina="inventario">
+    <main>
+        <div class="formulario-stock ancho">
+            <h1>EDITAR STOCK<small>Escribí la cantidad real que hay de cada item</small></h1>
+            <form id="form-inventario" novalidate>
+                <div id="lista" class="inv-grid"></div>
+                <button type="submit" class="btn btn-bloque">GUARDAR STOCK</button>
+            </form>
+            <button type="button" id="btn-agregar" class="btn btn-sec btn-bloque">+ AGREGAR ITEM</button>
+        </div>
+    </main>
+
+    <dialog id="dlg-nueva">
+        <div class="dlg">
+            <h2>AGREGAR ITEM</h2>
+            <form id="form-nueva" novalidate>
+                <label for="nombre-nuevo">NOMBRE DEL ITEM:</label>
+                <input type="text" id="nombre-nuevo" maxlength="80" placeholder="Ej: Mouse">
+
+                <label for="variante-nueva">TIPO (OPCIONAL):</label>
+                <input type="text" id="variante-nueva" maxlength="40" placeholder="Ej: Inalámbrico">
+
+                <label for="categoria-nueva">CATEGORÍA:</label>
+                <select id="categoria-nueva">
+                    <option value="herramientas">Herramientas (Taller)</option>
+                    <option value="perifericos">Periféricos (Escuela)</option>
+                </select>
+
+                <label for="cantidad-nueva">CANTIDAD INICIAL:</label>
+                <input type="number" id="cantidad-nueva" min="1" placeholder="0">
+
+                <div id="campos-pc" hidden>
+                    <label for="modelo-nuevo">MODELO (SOLO PC/NOTEBOOK):</label>
+                    <input type="text" id="modelo-nuevo" maxlength="80" placeholder="Ej: Dell OptiPlex 7090">
+
+                    <label for="especificacion-nueva">ESPECIFICACIÓN (SOLO PC/NOTEBOOK):</label>
+                    <input type="text" id="especificacion-nueva" maxlength="200" placeholder="Ej: i5-11400, 8GB RAM, 256GB SSD">
+                </div>
+
+                <div class="acciones">
+                    <button type="submit" class="btn">AGREGAR</button>
+                    <button type="button" id="dlg-cancelar" class="btn btn-sec">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script src="../js/datos.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/inventario.js"></script>
+</body>
+</html>

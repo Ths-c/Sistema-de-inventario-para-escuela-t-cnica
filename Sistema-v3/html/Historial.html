@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial</title>
+    <link rel="icon" href="../img/tecnica.jpg">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body data-pagina="historial">
+    <main>
+        <div class="formulario-stock filtros">
+            <h1>FILTRAR HISTORIAL</h1>
+            <form id="form-filtro" novalidate>
+                <div class="filtros-grid">
+                    <div><label for="fecha">FECHA:</label><input type="date" id="fecha" name="fecha"></div>
+                    <div>
+                        <label for="curso">CURSO:</label>
+                        <div class="combo">
+                            <input type="text" id="curso" name="curso" placeholder="Todos" autocomplete="off" role="combobox" aria-expanded="false">
+                            <button type="button" class="combo-toggle" aria-label="Mostrar cursos">▼</button>
+                            <ul class="combo-lista" role="listbox" hidden></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="preceptor">PRECEPTOR:</label>
+                        <div class="combo">
+                            <input type="text" id="preceptor" name="preceptor" placeholder="Todos" autocomplete="off" role="combobox" aria-expanded="false">
+                            <button type="button" class="combo-toggle" aria-label="Mostrar preceptores">▼</button>
+                            <ul class="combo-lista" role="listbox" hidden></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="profesor">PROFESOR:</label>
+                        <div class="combo">
+                            <input type="text" id="profesor" name="profesor" placeholder="Todos" autocomplete="off" role="combobox" aria-expanded="false">
+                            <button type="button" class="combo-toggle" aria-label="Mostrar profesores">▼</button>
+                            <ul class="combo-lista" role="listbox" hidden></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="acciones">
+                    <button type="submit" class="btn">FILTRAR</button>
+                    <button type="button" id="btn-limpiar" class="btn btn-sec">LIMPIAR</button>
+                </div>
+            </form>
+        </div>
+
+        <h2 class="resultados-titulo">RESULTADOS<small id="cuenta"></small></h2>
+        <section id="resultados" class="tickets-grid" aria-live="polite"></section>
+    </main>
+
+    <dialog id="detalle">
+        <div class="dlg">
+            <div id="detalle-cuerpo"></div>
+            <div class="acciones">
+                <button type="button" id="dlg-finalizar" class="btn btn-verde" hidden>FINALIZAR TICKET</button>
+                <button type="button" id="dlg-cerrar" class="btn btn-sec">CERRAR</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="../js/datos.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/historial.js"></script>
+</body>
+</html>

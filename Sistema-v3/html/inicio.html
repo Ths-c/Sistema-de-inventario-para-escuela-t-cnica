@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página principal</title>
+    <link rel="icon" href="../img/tecnica.jpg">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body data-pagina="inicio">
+    <main>
+        <div class="formulario-stock ancho">
+            <h1>RECIENTES<small>Últimos tickets cargados</small></h1>
+
+            <form id="form-entrada" novalidate>
+                <label for="reciente">TICKET:</label>
+                <select id="reciente"></select>
+                <div style="margin-top:12px"><span id="estado" class="estado"></span></div>
+
+                <fieldset id="campos" disabled>
+                    <label for="profesor">PROFESOR:</label>
+                    <div class="combo">
+                        <input type="text" id="profesor" name="profesor" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                        <button type="button" class="combo-toggle" aria-label="Mostrar profesores">▼</button>
+                        <ul class="combo-lista" role="listbox" hidden></ul>
+                    </div>
+
+                    <label for="curso">CURSO:</label>
+                    <div class="combo">
+                        <input type="text" id="curso" name="curso" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                        <button type="button" class="combo-toggle" aria-label="Mostrar cursos">▼</button>
+                        <ul class="combo-lista" role="listbox" hidden></ul>
+                    </div>
+
+                    <label for="preceptor">PRECEPTOR:</label>
+                    <div class="combo">
+                        <input type="text" id="preceptor" name="preceptor" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                        <button type="button" class="combo-toggle" aria-label="Mostrar preceptores">▼</button>
+                        <ul class="combo-lista" role="listbox" hidden></ul>
+                    </div>
+
+                    <label for="items">ELEMENTOS:</label>
+                    <input type="text" id="items" name="items" disabled>
+
+                    <div class="fila-doble">
+                        <div><label for="fecha">FECHA:</label><input type="date" id="fecha" name="fecha"></div>
+                        <div><label for="hora">HORA:</label><input type="time" id="hora" name="hora"></div>
+                    </div>
+
+                    <label for="descripcion">OBSERVACIONES:</label>
+                    <input type="text" id="descripcion" name="descripcion" maxlength="500" placeholder="Observaciones del ticket...">
+                </fieldset>
+
+                <div class="acciones">
+                    <button type="button" id="btn-editar" class="btn">EDITAR</button>
+                    <button type="submit" id="btn-guardar" class="btn" hidden>GUARDAR CAMBIOS</button>
+                    <button type="button" id="btn-cancelar" class="btn btn-sec" hidden>CANCELAR</button>
+                    <button type="button" id="btn-finalizar" class="btn btn-verde" hidden>FINALIZAR TICKET</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/datos.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/inicio.js"></script>
+</body>
+</html>

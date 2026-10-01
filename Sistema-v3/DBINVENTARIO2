@@ -1,0 +1,125 @@
+
+
+CREATE DATABASE gestion_inventario;
+USE gestion_inventario;
+
+
+CREATE TABLE admin (
+    id_admin INT PRIMARY KEY,
+    contrasena_admin VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE directivo (
+    id_directivo INT PRIMARY KEY,
+    nombre_dire VARCHAR(100) NOT NULL,
+    apellido_dire VARCHAR(100) NOT NULL,
+    contrasena_dire VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE preceptor_taller (
+    id_preceptor_taller INT PRIMARY KEY,
+    nombre_ptaller VARCHAR(100) NOT NULL,
+    apellido_ptaller VARCHAR(100) NOT NULL,
+    contrasena_ptaller VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE preceptor_escuela (
+    id_preceptor_escuela INT PRIMARY KEY,
+    nombre_pescu VARCHAR(100) NOT NULL,
+    apellido_pescu VARCHAR(100) NOT NULL,
+    contrasena_pescu VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE inventario_taller (
+    id_inventario_taller INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_elemento VARCHAR(100),
+    cantidad_disponible INT NOT NULL,
+    cantidad_danada INT NOT NULL,
+    cantidad_total INT NOT NULL,
+    id_directivo INT NOT NULL,
+    FOREIGN KEY (id_directivo) REFERENCES directivo(id_directivo)
+);
+
+CREATE TABLE inventario_escuela (
+    id_inventario_escuela INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_elemento VARCHAR(100),
+    cantidad_disponible INT NOT NULL,
+    cantidad_danada INT NOT NULL,
+    cantidad_total INT NOT NULL,
+    id_directivo INT NOT NULL,
+    FOREIGN KEY (id_directivo) REFERENCES directivo(id_directivo)
+);
+
+
+CREATE TABLE elemento_taller (
+    id_elemento_taller INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    tipo_elemento VARCHAR(100),
+    cantidad_disponible INT NOT NULL,
+    cantidad_danada INT NOT NULL,
+    cantidad_total INT NOT NULL,
+    estado_elemento VARCHAR(50),
+    id_inventario_taller INT NOT NULL,
+    FOREIGN KEY (id_inventario_taller) REFERENCES inventario_taller(id_inventario_taller)
+);
+
+-
+CREATE TABLE elemento_escuela (
+    id_elemento_escuela INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_elemento VARCHAR(100) NOT NULL,
+    tipo_elemento VARCHAR(100),
+    cantidad_disponible INT NOT NULL,
+    cantidad_dada INT NOT NULL,
+    cantidad_total INT NOT NULL,
+    estado_elemento VARCHAR(50),
+    id_inventario_escuela INT NOT NULL,
+    FOREIGN KEY (id_inventario_escuela) REFERENCES inventario_escuela(id_inventario_escuela)
+);
+
+
+CREATE TABLE profesor (
+    id_profesor INT PRIMARY KEY,
+    nombre_pro VARCHAR(100) NOT NULL
+    apellido_pro VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE curso (
+    id_curso INT PRIMARY KEY,
+    grupo_curso VARCHAR(100) NOT NULL
+);
+
+
+
+CREATE TABLE ticket (
+    id_ticket INT AUTO_INCREMENT PRIMARY KEY,
+    cantidad_elemento INT NOT NULL,
+    fecha_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    estado_ticket VARCHAR(50) NOT NULL DEFAULT 'PENDIENTE',
+    id_profesor INT NOT NULL,
+    id_curso INT NOT NULL,
+    id_preceptor_taller INT NULL,
+    id_preceptor_escuela INT NULL,
+    id_elemento_taller INT NULL,
+    id_elemento_escuela INT NULL,
+    FOREIGN KEY (id_profesor) REFERENCES profesor(id_profesor),
+    FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
+    FOREIGN KEY (id_preceptor_taller) REFERENCES preceptor_taller(id_preceptor_taller),
+    FOREIGN KEY (id_preceptor_escuela) REFERENCES preceptor_escuela(id_preceptor_escuela),
+    FOREIGN KEY (id_elemento_taller) REFERENCES elemento_taller(id_elemento_taller),
+    FOREIGN KEY (id_elemento_escuela) REFERENCES elemento_escuela(id_elemento_escuela),
+    CHECK (
+        (id_preceptor_taller IS NOT NULL AND id_preceptor_escuela IS NULL
+         AND id_elemento_taller IS NOT NULL AND id_elemento_escuela IS NULL)
+        OR
+        (id_preceptor_escuela IS NOT NULL AND id_preceptor_taller IS NULL
+         AND id_elemento_escuela IS NOT NULL AND id_elemento_taller IS NULL)
+    )
+);

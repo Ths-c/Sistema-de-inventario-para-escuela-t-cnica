@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear ticket</title>
+    <link rel="icon" href="../img/tecnica.jpg">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body data-pagina="crear">
+    <main>
+        <div class="formulario-stock">
+            <h1>CREAR TICKET</h1>
+
+            <form id="form-ticket" novalidate>
+                <label for="profesor">PROFESOR:</label>
+                <div class="combo">
+                    <input type="text" id="profesor" name="profesor" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                    <button type="button" class="combo-toggle" aria-label="Mostrar profesores">▼</button>
+                    <ul class="combo-lista" role="listbox" hidden></ul>
+                </div>
+
+                <label for="curso">CURSO:</label>
+                <div class="combo">
+                    <input type="text" id="curso" name="curso" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                    <button type="button" class="combo-toggle" aria-label="Mostrar cursos">▼</button>
+                    <ul class="combo-lista" role="listbox" hidden></ul>
+                </div>
+
+                <label for="preceptor">PRECEPTOR:</label>
+                <div class="combo">
+                    <input type="text" id="preceptor" name="preceptor" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                    <button type="button" class="combo-toggle" aria-label="Mostrar preceptores">▼</button>
+                    <ul class="combo-lista" role="listbox" hidden></ul>
+                </div>
+
+                <div class="agregar-fila">
+                    <div>
+                        <label for="item">ITEM/EQUIPO:</label>
+                        <div class="combo">
+                            <input type="text" id="item" name="item" placeholder="Toque para ver o escriba para buscar..." autocomplete="off" role="combobox" aria-expanded="false">
+                            <button type="button" class="combo-toggle" aria-label="Mostrar items">▼</button>
+                            <ul class="combo-lista" role="listbox" hidden></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="cantidad">CANTIDAD:</label>
+                        <input type="number" id="cantidad" name="cantidad" min="1" placeholder="0">
+                    </div>
+                    <button type="button" id="btn-agregar" class="btn btn-sec">AGREGAR</button>
+                </div>
+                <p id="disponible" class="ayuda"></p>
+                <div id="lista-items" class="chips" aria-live="polite"></div>
+
+                <div class="fila-doble">
+                    <div><label for="fecha">FECHA:</label><input type="date" id="fecha" name="fecha"></div>
+                    <div><label for="hora">HORA:</label><input type="time" id="hora" name="hora"></div>
+                </div>
+
+                <label for="descripcion">OBSERVACIONES:</label>
+                <input type="text" id="descripcion" name="descripcion" maxlength="500" placeholder="Observaciones del ticket...">
+
+                <button type="submit" class="btn btn-bloque">CREAR TICKET</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/datos.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/crearTicket.js"></script>
+</body>
+</html>
