@@ -205,6 +205,12 @@ function requireAuth(req, res, next) {
   if (!req.session || !req.session.usuario) return res.status(401).json({ error: 'Sin sesión' });
   next();
 }
+function requireDirectivo(req, res, next) {
+  if (!req.session || req.session.rol !== 'directivo') {
+    return res.status(403).json({ error: 'Solo un usuario directivo puede modificar el stock' });
+  }
+  next();
+}
 
 /* ================= AUTH ================= */
 app.post('/api/auth/login', async (req, res) => {
@@ -386,7 +392,7 @@ app.post('/api/tickets/:id/finalizar', requireAuth, async (req, res) => {
 });
 
 /* ================= HERRAMIENTAS / STOCK ================= */
-app.post('/api/herramientas', requireAuth, async (req, res) => {
+app.post('/api/herramientas', requireAuth, requireDirectivo, async (req, res) => {
   try {
     const { nombre, variante, cantidad, modelo, especificacion, categoria } = req.body || {};
     const etiqueta = String(nombre || '').trim();
@@ -426,7 +432,7 @@ app.post('/api/herramientas', requireAuth, async (req, res) => {
 });
 
 // Incremento puntual (compat): { id, cantidad }
-app.post('/api/herramientas/stock', requireAuth, async (req, res) => {
+app.post('/api/herramientas/stock', requireAuth, requireDirectivo, async (req, res) => {
   try {
     const { id, cantidad } = req.body || {};
     const h = await dbFindHerramienta(id);
@@ -440,7 +446,7 @@ app.post('/api/herramientas/stock', requireAuth, async (req, res) => {
 });
 
 // Guardado absoluto desde inventario: { items:[{id, stock}] }
-app.put('/api/herramientas/stock', requireAuth, async (req, res) => {
+app.put('/api/herramientas/stock', requireAuth, requireDirectivo, async (req, res) => {
   try {
     const { items } = req.body || {};
     if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: 'Sin cambios' });

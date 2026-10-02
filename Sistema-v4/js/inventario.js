@@ -16,8 +16,22 @@ function sesionActual() {
 }
 
 function esDirectivo() {
-  const s = sesionActual();
-  return s.modo === 'directivo' || s.modo === 'ambos' || s.rol === 'directivo';
+  return sesionActual().rol === 'directivo';
+}
+
+function configurarVista() {
+  const rol = sesionActual().rol;
+  const directo = rol === 'directivo';
+  const titulo = $('#titulo-inventario');
+  const subtitulo = $('#subtitulo-inventario');
+
+  titulo.firstChild.textContent = rol === 'directivo'
+    ? 'EDITAR HERRAMIENTAS, PERIFERICOS Y STOCK'
+    : rol === 'preceptor_taller' ? 'STOCK HERRAMIENTAS'
+      : rol === 'preceptor_escuela' ? 'STOCK DE PERIFERICOS' : 'STOCK';
+  subtitulo.hidden = !directo;
+  formInv.querySelector('[type=submit]').hidden = !directo;
+  $('#btn-agregar').hidden = !directo;
 }
 
 // Categoría por defecto según el modo del usuario (admin2 -> perifericos)
@@ -37,10 +51,11 @@ function toggleCamposPc() {
 
 async function cargar() {
   items = (await Datos.catalogos()).herramientas;
+  const soloLectura = !esDirectivo();
   $('#lista').innerHTML = items.map((h) => `
     <div class="fila" data-id="${h.id}">
       <label for="h${h.id}">${esc(h.etiqueta).toUpperCase()}${h.modelo ? ` (${esc(h.modelo)})` : ''}${h.especificacion ? ` - ${esc(h.especificacion)}` : ''}:</label>
-      <input type="number" id="h${h.id}" data-id="${h.id}" min="0" step="1" value="${h.stock}">
+      <input type="number" id="h${h.id}" data-id="${h.id}" min="0" step="1" value="${h.stock}"${soloLectura ? ' readonly' : ''}>
     </div>`).join('');
 }
 
@@ -113,4 +128,5 @@ formNueva.addEventListener('submit', async (e) => {
   finally { boton.disabled = false; }
 });
 
+configurarVista();
 cargar().catch(mostrarError);
