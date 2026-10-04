@@ -404,8 +404,9 @@ app.post('/api/herramientas', requireAuth, requireDirectivo, async (req, res) =>
     if (!dbOk) {
       const dup = mem.herramientas.find((h) =>
         h.etiqueta.toLowerCase() === etiqueta.toLowerCase() &&
-        (h.variante || '').toLowerCase() === String(variante || '').trim().toLowerCase());
-      if (dup) return res.status(409).json({ error: 'Ese item ya existe' });
+        (h.variante || '').toLowerCase() === String(variante || '').trim().toLowerCase() &&
+        h.categoria === cat);
+      if (dup) return res.status(409).json({ error: 'Ese item ya existe en ese sector' });
       const h = {
         id: mem.nextHerrId++,
         etiqueta,
@@ -419,9 +420,9 @@ app.post('/api/herramientas', requireAuth, requireDirectivo, async (req, res) =>
       return res.json(ok({ herramienta: h }));
     }
     const [dup] = await pool.query(
-      'SELECT id FROM herramientas WHERE LOWER(etiqueta)=LOWER(?) AND LOWER(variante)=LOWER(?) LIMIT 1',
-      [etiqueta, String(variante || '').trim()]);
-    if (dup.length) return res.status(409).json({ error: 'Ese item ya existe' });
+      'SELECT id FROM herramientas WHERE LOWER(etiqueta)=LOWER(?) AND LOWER(variante)=LOWER(?) AND categoria=? LIMIT 1',
+      [etiqueta, String(variante || '').trim(), cat]);
+    if (dup.length) return res.status(409).json({ error: 'Ese item ya existe en ese sector' });
     const [r] = await pool.query(
       'INSERT INTO herramientas (etiqueta, variante, modelo, especificacion, stock, categoria) VALUES (?,?,?,?,?,?)',
       [etiqueta, String(variante || '').trim(), String(modelo || '').trim(),
@@ -445,7 +446,8 @@ app.post('/api/herramientas/stock', requireAuth, requireDirectivo, async (req, r
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Guardado absoluto desde inventario: { items:[{id, stock}] }
+// Guardado absoluto desde inventario: { items:[{id, stock, categoria?}] }
+// `categoria` (opcional) cambia el sector del item: 'herramientas' (Taller) o 'perifericos' (Escuela).
 app.put('/api/herramientas/stock', requireAuth, requireDirectivo, async (req, res) => {
   try {
     const { items } = req.body || {};
@@ -456,13 +458,29 @@ app.put('/api/herramientas/stock', requireAuth, requireDirectivo, async (req, re
       if (!Number.isInteger(stock) || stock < 0) {
         return res.status(400).json({ error: 'Stock inválido para item #' + it.id });
       }
+      const nuevaCat = it.categoria === undefined ? null : (it.categoria === 'perifericos' ? 'perifericos' : 'herramientas');
+      const h = await dbFindHerramienta(it.id);
+      if (!h) return res.status(404).json({ error: 'Item #' + it.id + ' no existe' });
+      if (nuevaCat && nuevaCat !== h.categoria) {
+        // No permitir que el cambio de sector deje dos items iguales en el mismo sector
+        const dupMem = !dbOk && mem.herramientas.some((x) => x.id !== h.id && x.categoria === nuevaCat &&
+          x.etiqueta.toLowerCase() === h.etiqueta.toLowerCase() && (x.variante || '').toLowerCase() === (h.variante || '').toLowerCase());
+        let dupDb = false;
+        if (dbOk) {
+          const [d] = await pool.query(
+            'SELECT id FROM herramientas WHERE id<>? AND categoria=? AND LOWER(etiqueta)=LOWER(?) AND LOWER(variante)=LOWER(?) LIMIT 1',
+            [h.id, nuevaCat, h.etiqueta, h.variante || '']);
+          dupDb = d.length > 0;
+        }
+        if (dupMem || dupDb) return res.status(409).json({ error: h.etiqueta + ' ya existe en el sector ' + (nuevaCat === 'perifericos' ? 'Escuela' : 'Taller') });
+      }
       if (!dbOk) {
-        const h = mem.herramientas.find((x) => x.id === Number(it.id));
-        if (!h) return res.status(404).json({ error: 'Item #' + it.id + ' no existe' });
         h.stock = stock;
+        if (nuevaCat) h.categoria = nuevaCat;
+      } else if (nuevaCat) {
+        await pool.query('UPDATE herramientas SET stock=?, categoria=? WHERE id=?', [stock, nuevaCat, h.id]);
       } else {
-        const [r] = await pool.query('UPDATE herramientas SET stock=? WHERE id=?', [stock, it.id]);
-        if (!r.affectedRows) return res.status(404).json({ error: 'Item #' + it.id + ' no existe' });
+        await pool.query('UPDATE herramientas SET stock=? WHERE id=?', [stock, h.id]);
       }
       cambios++;
     }

@@ -56,7 +56,14 @@ formEntrada.addEventListener('submit', async (e) => {
   e.preventDefault();
   const t = actual();
   if (!editando || !t) return;
-  const profesor = buscarNombre(cat.profesores, $('#profesor').value);
+  // Profesor: de la lista, "Preceptor", o uno temporal (el que ya tenía el ticket o uno nuevo confirmado)
+  const escrito = $('#profesor').value.trim().replace(/\s+/g, ' ');
+  let profesor = buscarNombre(opcionesProfesor(cat.profesores, false), escrito);
+  if (!profesor && escrito && (esProfesorTemporal(escrito) || escrito === t.profesor)) profesor = escrito;
+  if (!profesor && escrito && escrito.toLowerCase() !== PROF_OTRO.toLowerCase()
+      && confirm(`"${escrito}" no está en la lista de profesores. ¿Cargarlo como otro profesor (temporal)?`)) {
+    profesor = escrito + SUFIJO_OTRO;
+  }
   const curso = buscarNombre(cat.cursos, $('#curso').value);
   const preceptor = buscarNombre(cat.preceptores, $('#preceptor').value);
   if (!profesor) return toast('Elegí un profesor de la lista.', 'error');
@@ -91,7 +98,7 @@ $('#btn-finalizar').addEventListener('click', async () => {
 (async () => {
   try {
     cat = await Datos.catalogos();
-    crearCombo('profesor', cat.profesores);
+    crearCombo('profesor', opcionesProfesor(cat.profesores, false));
     crearCombo('curso', cat.cursos);
     crearCombo('preceptor', cat.preceptores);
     await cargar();

@@ -3,13 +3,17 @@ const form = $('#form-ticket');
 let cat = null;
 let items = []; // [{ id, etiqueta, cantidad, modelo, especificacion }]
 
-const itemElegido = () => cat.herramientas.find((h) => h.etiqueta.toLowerCase() === $('#item').value.trim().toLowerCase());
+// Texto único de cada item en la lista: incluye el sector (Taller/Escuela) porque
+// puede haber items con el mismo nombre en ambos sectores (ej: Netbook).
+const textoItem = (h) => `${h.etiqueta}${h.variante ? ` ${h.variante}` : ''} [${nombreSector(h.categoria)}]`;
+const itemElegido = () => cat.herramientas.find((h) => textoItem(h).toLowerCase() === $('#item').value.trim().toLowerCase());
 const yaAgregado = (id) => (items.find((i) => i.id === id) || { cantidad: 0 }).cantidad;
 
 function formatoItem(item) {
   let txt = esc(item.etiqueta);
   if (item.modelo) txt += ` (${esc(item.modelo)})`;
   if (item.especificacion) txt += ` - ${esc(item.especificacion)}`;
+  if (item.categoria) txt += ` · ${esc(nombreSector(item.categoria))}`;
   return txt;
 }
 
@@ -25,15 +29,27 @@ function pintarDisponible() {
 
 async function cargarCatalogos() {
   cat = await Datos.catalogos();
-  crearCombo('profesor', cat.profesores);
+  crearCombo('profesor', opcionesProfesor(cat.profesores));
   crearCombo('curso', cat.cursos);
   crearCombo('preceptor', cat.preceptores);
-  crearCombo('item', cat.herramientas.map((h) => ({ value: h.etiqueta, label: `${h.modelo ? `${h.modelo} - ` : ''}${h.especificacion || ''} Stock: ${h.stock}`.trim() })));
+  crearCombo('item', cat.herramientas.map((h) => ({ value: textoItem(h), label: `${h.modelo ? `${h.modelo} - ` : ''}${h.especificacion || ''} Stock: ${h.stock}`.trim() })));
 }
 
 function fechaHoraActual() { $('#fecha').value = hoyISO(); $('#hora').value = ahoraHM(); }
 
 $('#item').addEventListener('input', pintarDisponible);
+
+// "Otro profesor": mostrar el campo para escribir el nombre del profesor temporal
+function actualizarOtroProfesor() {
+  const otro = $('#profesor').value.trim().toLowerCase() === PROF_OTRO.toLowerCase();
+  $('#bloque-otro').hidden = !otro;
+  if (!otro) $('#profesor-otro').value = '';
+}
+$('#profesor').addEventListener('input', actualizarOtroProfesor);
+$('#profesor').addEventListener('change', () => {
+  actualizarOtroProfesor();
+  if (!$('#bloque-otro').hidden) $('#profesor-otro').focus();
+});
 
 $('#btn-agregar').addEventListener('click', () => {
   const h = itemElegido();
@@ -43,7 +59,7 @@ $('#btn-agregar').addEventListener('click', () => {
   const total = yaAgregado(h.id) + cant;
   if (total > h.stock) return toast(`Solo hay ${h.stock} de ${h.etiqueta} en stock.`, 'error');
   const existente = items.find((i) => i.id === h.id);
-  if (existente) existente.cantidad = total; else items.push({ id: h.id, etiqueta: h.etiqueta, cantidad: cant, modelo: h.modelo, especificacion: h.especificacion });
+  if (existente) existente.cantidad = total; else items.push({ id: h.id, etiqueta: h.etiqueta, cantidad: cant, modelo: h.modelo, especificacion: h.especificacion, categoria: h.categoria });
   $('#item').value = ''; $('#cantidad').value = '';
   pintarItems(); pintarDisponible();
   $('#item').focus();
@@ -58,7 +74,12 @@ $('#lista-items').addEventListener('click', (e) => {
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const profesor = buscarNombre(cat.profesores, $('#profesor').value);
+  let profesor = buscarNombre(opcionesProfesor(cat.profesores), $('#profesor').value);
+  if (profesor === PROF_OTRO) {
+    const nombre = $('#profesor-otro').value.trim().replace(/\s+/g, ' ');
+    if (!nombre) return toast('Escribí el nombre del profesor temporal.', 'error');
+    profesor = nombre + SUFIJO_OTRO;
+  }
   const curso = buscarNombre(cat.cursos, $('#curso').value);
   const preceptor = buscarNombre(cat.preceptores, $('#preceptor').value);
   if (!profesor) return toast('Elegí un profesor de la lista.', 'error');
@@ -77,7 +98,7 @@ form.addEventListener('submit', async (e) => {
       items: items.map(({ id, cantidad }) => ({ id, cantidad })),
     });
     toast(`Ticket #${r.id} creado.`);
-    form.reset(); items = []; pintarItems(); fechaHoraActual();
+    form.reset(); items = []; actualizarOtroProfesor(); pintarItems(); fechaHoraActual();
     await cargarCatalogos(); pintarDisponible();
   } catch (err) { mostrarError(err); }
   finally { boton.disabled = false; }

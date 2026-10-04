@@ -52,18 +52,36 @@ function toggleCamposPc() {
 async function cargar() {
   items = (await Datos.catalogos()).herramientas;
   const soloLectura = !esDirectivo();
-  $('#lista').innerHTML = items.map((h) => `
+  const directo = !soloLectura;
+  const fila = (h) => `
     <div class="fila" data-id="${h.id}">
       <label for="h${h.id}">${esc(h.etiqueta).toUpperCase()}${h.modelo ? ` (${esc(h.modelo)})` : ''}${h.especificacion ? ` - ${esc(h.especificacion)}` : ''}:</label>
-      <input type="number" id="h${h.id}" data-id="${h.id}" min="0" step="1" value="${h.stock}"${soloLectura ? ' readonly' : ''}>
-    </div>`).join('');
+      <div class="fila-controles">
+        <input type="number" id="h${h.id}" data-id="${h.id}" min="0" step="1" value="${h.stock}"${soloLectura ? ' readonly' : ''}>
+        ${directo ? `<select data-sector-id="${h.id}" aria-label="Sector de ${esc(h.etiqueta)}">
+          <option value="herramientas"${h.categoria !== 'perifericos' ? ' selected' : ''}>Taller</option>
+          <option value="perifericos"${h.categoria === 'perifericos' ? ' selected' : ''}>Escuela</option>
+        </select>` : ''}
+      </div>
+    </div>`;
+  // Agrupado por sector: Taller y Escuela (cada preceptor solo recibe los de su sector)
+  const grupos = [['herramientas', 'TALLER'], ['perifericos', 'ESCUELA']]
+    .map(([cat, titulo]) => [titulo, items.filter((h) => (h.categoria === 'perifericos' ? 'perifericos' : 'herramientas') === cat)])
+    .filter(([, lista]) => lista.length);
+  $('#lista').innerHTML = grupos.map(([titulo, lista]) =>
+    `<h2 class="sector-titulo">${titulo}</h2>${lista.map(fila).join('')}`).join('');
 }
 
 $('#lista').addEventListener('input', (e) => {
-  const inp = e.target.closest('input');
-  if (!inp) return;
-  const h = items.find((x) => x.id === Number(inp.dataset.id));
-  inp.closest('.fila').classList.toggle('cambiado', Number(inp.value) !== h.stock);
+  const campo = e.target.closest('input, select');
+  if (!campo) return;
+  const id = Number(campo.dataset.id || campo.dataset.sectorId);
+  const h = items.find((x) => x.id === id);
+  const fila = campo.closest('.fila');
+  const inp = fila.querySelector('input');
+  const sel = fila.querySelector('select');
+  const sectorCambio = sel && sel.value !== (h.categoria === 'perifericos' ? 'perifericos' : 'herramientas');
+  fila.classList.toggle('cambiado', Number(inp.value) !== h.stock || !!sectorCambio);
 });
 
 formInv.addEventListener('submit', async (e) => {
@@ -74,7 +92,10 @@ formInv.addEventListener('submit', async (e) => {
     const stock = Number(inp.value);
     const h = items.find((x) => x.id === id);
     if (inp.value === '' || !Number.isInteger(stock) || stock < 0) return toast(`Revisá la cantidad de ${h.etiqueta}: tiene que ser un número entero desde 0.`, 'error');
-    if (stock !== h.stock) cambios.push({ id, stock });
+    const sel = formInv.querySelector(`select[data-sector-id="${id}"]`);
+    const catActual = h.categoria === 'perifericos' ? 'perifericos' : 'herramientas';
+    const sectorCambio = sel && sel.value !== catActual;
+    if (stock !== h.stock || sectorCambio) cambios.push(sectorCambio ? { id, stock, categoria: sel.value } : { id, stock });
   }
   if (!cambios.length) return toast('No hay cambios para guardar.', 'error');
 

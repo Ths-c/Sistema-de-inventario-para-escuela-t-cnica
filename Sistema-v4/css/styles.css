@@ -171,6 +171,11 @@ dialog::backdrop { background: rgba(37, 74, 114, .55); }
 .fila.cambiado input { border-color: var(--naranja); box-shadow: 0 0 0 3px rgba(255, 153, 107, .35); }
 .fila label { margin: 0; grid-column: 1 / -1; }
 .fila input { width: 80px; height: 34px; font-size: 14px; }
+.fila-controles { display: flex; gap: 8px; align-items: center; }
+.fila select { width: 100px; height: 34px; font-size: 14px; padding: 2px 8px; }
+.fila.cambiado select { border-color: var(--naranja); box-shadow: 0 0 0 3px rgba(255, 153, 107, .35); }
+.sector-titulo { grid-column: 1 / -1; font-size: 13px; letter-spacing: .6px; color: var(--titulo); border-bottom: 2px solid var(--boton); padding-bottom: 4px; margin: 18px 0 6px; }
+.sector-titulo:first-child { margin-top: 6px; }
 .btn-eliminar { width: 34px; height: 34px; border: 0; border-radius: 6px; background: #f6d6d6; color: var(--rojo); font-size: 16px; cursor: pointer; transition: background .15s; display: flex; align-items: center; justify-content: center; }
 .btn-eliminar:hover { background: #f0c0c0; }
 

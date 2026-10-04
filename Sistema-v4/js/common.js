@@ -173,6 +173,20 @@ document.addEventListener('pointerdown', (e) => {
 // Devuelve el nombre exacto de la lista aunque el usuario escriba distinto en mayúsculas
 const buscarNombre = (lista, valor) => lista.find((x) => x.toLowerCase() === String(valor || '').trim().toLowerCase()) || null;
 
+/* Profesores: además de la lista, hay dos opciones fijas.
+   - "Preceptor": cuando hay hora libre y se hace cargo un preceptor.
+   - "Otro profesor": profesor temporal que no está en el sistema (se escribe el nombre
+     en el ticket, no se guarda en la lista). */
+const PROF_PRECEPTOR = 'Preceptor';
+const PROF_OTRO = 'Otro profesor';
+const SUFIJO_OTRO = ' (Otro profesor)';
+const opcionesProfesor = (lista, conOtro = true) => [...lista, PROF_PRECEPTOR, ...(conOtro ? [PROF_OTRO] : [])];
+const esProfesorTemporal = (v) => String(v || '').endsWith(SUFIJO_OTRO);
+
+/* Sectores: la categoría interna 'herramientas' es el Taller y 'perifericos' es la Escuela. */
+const SECTORES = { herramientas: 'Taller', perifericos: 'Escuela' };
+const nombreSector = (cat) => SECTORES[cat] || '';
+
 const NAV = [
   ['inicio.html', 'INICIO', 'inicio'],
   ['Historial.html', 'HISTORIAL', 'historial'],

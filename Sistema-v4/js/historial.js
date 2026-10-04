@@ -87,7 +87,7 @@ $('#btn-limpiar').addEventListener('click', () => { filtro.reset(); buscar(); })
 (async () => {
   try {
     const cat = await Datos.catalogos();
-    crearCombo('profesor', cat.profesores);
+    crearCombo('profesor', opcionesProfesor(cat.profesores, false));
     crearCombo('curso', cat.cursos);
     crearCombo('preceptor', cat.preceptores);
     await buscar();
