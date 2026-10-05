@@ -8,16 +8,7 @@ const inputNombre = $('#nombre-nuevo');
 const selectCategoria = $('#categoria-nueva');
 let items = [];
 
-function sesionActual() {
-  try {
-    const s = sessionStorage.getItem('sesion');
-    return s ? JSON.parse(s) : {};
-  } catch (_) { return {}; }
-}
-
-function esDirectivo() {
-  return sesionActual().rol === 'directivo';
-}
+// sesionActual() y esDirectivo() vienen de common.js
 
 function configurarVista() {
   const rol = sesionActual().rol;
@@ -69,7 +60,7 @@ async function cargar() {
     .map(([cat, titulo]) => [titulo, items.filter((h) => (h.categoria === 'perifericos' ? 'perifericos' : 'herramientas') === cat)])
     .filter(([, lista]) => lista.length);
   $('#lista').innerHTML = grupos.map(([titulo, lista]) =>
-    `<h2 class="sector-titulo">${titulo}</h2>${lista.map(fila).join('')}`).join('');
+    `${directo ? `<h2 class="sector-titulo">${titulo}</h2>` : ''}${lista.map(fila).join('')}`).join('');
 }
 
 $('#lista').addEventListener('input', (e) => {

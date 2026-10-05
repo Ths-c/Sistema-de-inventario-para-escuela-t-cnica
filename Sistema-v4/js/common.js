@@ -187,6 +187,17 @@ const esProfesorTemporal = (v) => String(v || '').endsWith(SUFIJO_OTRO);
 const SECTORES = { herramientas: 'Taller', perifericos: 'Escuela' };
 const nombreSector = (cat) => SECTORES[cat] || '';
 
+/* Sesión y rol (guardados en sessionStorage al iniciar sesión) */
+function sesionActual() {
+  try {
+    const s = sessionStorage.getItem('sesion');
+    return s ? JSON.parse(s) : {};
+  } catch (_) { return {}; }
+}
+const esDirectivo = () => sesionActual().rol === 'directivo';
+// Solo el directivo ve el sector; para los demás devuelve ''
+const sectorVisible = (cat) => (esDirectivo() ? nombreSector(cat) : '');
+
 const NAV = [
   ['inicio.html', 'INICIO', 'inicio'],
   ['Historial.html', 'HISTORIAL', 'historial'],

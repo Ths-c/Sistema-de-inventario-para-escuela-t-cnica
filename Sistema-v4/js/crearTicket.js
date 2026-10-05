@@ -3,9 +3,13 @@ const form = $('#form-ticket');
 let cat = null;
 let items = []; // [{ id, etiqueta, cantidad, modelo, especificacion }]
 
-// Texto único de cada item en la lista: incluye el sector (Taller/Escuela) porque
-// puede haber items con el mismo nombre en ambos sectores (ej: Netbook).
-const textoItem = (h) => `${h.etiqueta}${h.variante ? ` ${h.variante}` : ''} [${nombreSector(h.categoria)}]`;
+// Texto único de cada item en la lista: para el directivo incluye el sector (Taller/Escuela)
+// porque puede haber items con el mismo nombre en ambos sectores (ej: Netbook).
+// Los preceptores solo ven los items de su sector, así que no lo necesitan.
+const textoItem = (h) => {
+  const s = sectorVisible(h.categoria);
+  return `${h.etiqueta}${h.variante ? ` ${h.variante}` : ''}${s ? ` [${s}]` : ''}`;
+};
 const itemElegido = () => cat.herramientas.find((h) => textoItem(h).toLowerCase() === $('#item').value.trim().toLowerCase());
 const yaAgregado = (id) => (items.find((i) => i.id === id) || { cantidad: 0 }).cantidad;
 
@@ -13,7 +17,7 @@ function formatoItem(item) {
   let txt = esc(item.etiqueta);
   if (item.modelo) txt += ` (${esc(item.modelo)})`;
   if (item.especificacion) txt += ` - ${esc(item.especificacion)}`;
-  if (item.categoria) txt += ` · ${esc(nombreSector(item.categoria))}`;
+  if (sectorVisible(item.categoria)) txt += ` · ${esc(sectorVisible(item.categoria))}`;
   return txt;
 }
 
@@ -62,7 +66,6 @@ $('#btn-agregar').addEventListener('click', () => {
   if (existente) existente.cantidad = total; else items.push({ id: h.id, etiqueta: h.etiqueta, cantidad: cant, modelo: h.modelo, especificacion: h.especificacion, categoria: h.categoria });
   $('#item').value = ''; $('#cantidad').value = '';
   pintarItems(); pintarDisponible();
-  $('#item').focus();
 });
 
 $('#lista-items').addEventListener('click', (e) => {
